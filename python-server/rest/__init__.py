@@ -23,10 +23,22 @@ import sys
 import countries_rest
 import flights_rest
 import usuarios_rest
-import airports_rest
+import aeropuertos_rest
 import vuelos_rest
 import aeropuertos_salidas_llegadas_rest
 import aerolineas_rest
+import aviones_rest
+import reservas_rest
+import envios_rest
+import vuelos_realizados_rest
+import consultar_aerolinea_gerente_rest
+import consultar_aerolinea_aerolinea_rest
+import consultar_aerolinea_carga_aeropuerto_rest
+import consultar_aerolinea_persona_aeropuerto_rest
+import producido_pasajeros_rest
+import producido_carga_rest
+import producido_carga_fechas_rest
+import producido_pasajeros_fechas_rest
 
 __version__ = '1.0.0'
 

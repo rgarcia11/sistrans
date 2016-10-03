@@ -19,9 +19,17 @@ MIT, see LICENSE for more details.
 
 import os
 import sys
-import user
+import usuario
 import vuelo
 import model
+import administrador
+import aerolinea
+import aeropuerto
+import avion
+import remitente
+import viajero
+import vuelo
+import reserva
 
 __version__ = '1.0.0'
 

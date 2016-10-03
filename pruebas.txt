@@ -1,0 +1,103 @@
+PRUEBAS
+
+admin: edgarin@gmail.com
+viajero: edgarin666@gmail.com
+remitente: edgarin66663@gmail.com
+aerolinea: gato123@gmail.com
+aeropuerto: zucaritos@gmail.com
+
+AGREGAR USUARIO:
+{
+    "nombre": "Edgar1", 
+    "identificacion": "1500001",
+    "e_mail": "edgarin66661@gmail.com",
+    "tipo": "administrador"
+}
+{
+    "nombre": "tefa", 
+    "identificacion": "1532031",
+    "e_mail": "tefa123@gmail.com",
+    "tipo": "viajero"
+}
+{
+    "nombre": "EdgarAiuda", 
+    "identificacion": "1500003",
+    "e_mail": "edgarin66663@gmail.com",
+    "tipo": "remitente "
+}
+
+AGREGAR VUELO:
+{
+  "tipovuelo": 2,
+  "horallegada": "2017-02-15 6:15:00",
+  "distancia": 600,
+  "fecha": "2017-02-15 00:00:00",
+  "idavion": 726,
+  "aeropuertosalida": "BOG",
+  "aeropuertollegada": "CAD",
+  "duracion": 360,
+  "idnumvuelo": 45000,
+  "idaerolinea": "AA",
+  "idvuelo": 45000,
+  "horasalida": "2017-02-15 04:11:00",
+  "frecuencia": 1
+}
+
+AGREGAR AEROLINEA:
+{
+    "iatacod": "aa", 
+    "nombre": "prueba",
+    "pais": "Colombia"
+}
+
+AGREGAR AEROPUERTO:
+{
+    "ciudad": "Atlanta", 
+    "capacidadaviones": 300,
+    "iatacod": "bog",
+    "nombre": "margara's airport"
+}
+
+AGREGAR AVION:
+{
+    "marca": "Cessna", 
+    "modelo": "400L",
+    "numserie": 45,
+    "idavion": "5000",
+    "anofabricacion": "2014-02-14 00:00:00",
+    "idaerolinea": "AA"
+}
+
+AGREGAR RESERVA:
+{
+    "idviajero": 2, 
+    "idvuelo": 2,
+    "idreserva": 150000,
+    "numejec": 0,
+    "numecon": 2
+}
+
+AGREGAR ENVIO:
+{
+    "idremitente": 2, 
+    "idvuelo": 2,
+    "idenvio": 150000,
+    "volumen": 0,
+    "peso": 2,
+    "contenido": "Caja"
+}
+
+AGREGAR VIAJE REALIZADO:
+{
+    "idavion": 725, 
+    "idvuelo": 201,
+    "idaerolinea": "AA",
+    "fechasalida": "2017-02-14 00:00:00",
+    "fechallegada": "2017-02-15 00:00:00"
+}
+
+CONSULTAR ARRIBOS Y SALIDAS DE VIAJES EN UN AEROPUERTO RFC1
+import requests
+holi= {'cod_aeropuerto':'BOG', 'horallegada':'2017-02-15 10:15:00'}
+r= requests.get('http://localhost:8000/api/aeropuertos/salidas_llegadas',json=holi)
+r.text

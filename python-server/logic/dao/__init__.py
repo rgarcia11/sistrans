@@ -22,11 +22,16 @@ import sys
 import utils
 import flights_dao
 import countries_dao
-import airports_dao
+import aeropuertos_dao
 import vuelos_dao
 import usuarios_dao
 import administradores_dao
-
+import aerolineas_dao
+import remitentes_dao
+import viajeros_dao
+import reservas_dao
+import envios_dao
+import vuelos_realizados_dao
 
 __version__ = '1.0.0'
 

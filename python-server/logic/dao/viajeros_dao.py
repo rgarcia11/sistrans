@@ -16,3 +16,9 @@ def registrar_viajero(cur, viajero):
           # 'idavion' ]
     cur.execute(stmt, viajero.__dict__)
     return viajero
+
+def dar_count_viajeros(cur):
+    stmt = 'SELECT COUNT(*) as total FROM viajeros'
+    cur.execute(stmt)
+    value = cur.fetchall()
+    return cur, value

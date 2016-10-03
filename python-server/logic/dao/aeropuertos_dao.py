@@ -19,3 +19,12 @@ def get_airport(cur, iata_code):
     cur.execute(stmt, (iata_code,))
     value = cur.fetchall()
     return cur, value
+
+def registrar_aeropuerto(cur, aeropuerto):
+    stmt= '''
+    INSERT INTO aeropuertos(ciudad, capacidadaviones, iatacod, nombre) 
+    VALUES (:ciudad, :capacidadaviones, :iatacod, :nombre)
+    '''
+    cur.execute(stmt, aeropuerto.__dict__)
+    return aeropuerto
+
