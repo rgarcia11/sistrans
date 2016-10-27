@@ -14,5 +14,9 @@ def registrar_envio(cur, envio):
     # keys= ['idvuelo', 'idaerolinea', 'idnumvuelo', 'aeropuertosalida', 'aeropuertollegada', 
           # 'horasalida', 'horallegada', 'fecha', 'frecuencia', 'distancia', 'duracion', 'tipovuelo',
           # 'idavion' ]
+    c= """Savepoint antesderegistrarreserva"""
+    ser="""set transaction isolation level serializable"""
+    cur.execute(c)
+    cur.execute(ser)
     cur.execute(stmt, envio.__dict__)
     return envio

@@ -39,6 +39,11 @@ import producido_pasajeros_rest
 import producido_carga_rest
 import producido_carga_fechas_rest
 import producido_pasajeros_fechas_rest
+import cancelar_reserva_rest
+import consultar_viajes_rest
+import consultar_aviones_admin_rest
+import consultar_viajes_admin_rest
+import cancelar_vuelo_rest
 
 __version__ = '1.0.0'
 

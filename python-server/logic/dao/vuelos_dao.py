@@ -29,6 +29,16 @@ def registrar_vuelo(cur, vuelo):
     cur.execute(stmt, vuelo.__dict__)
     return vuelo
 
+@returnobj #ret cursor y valor
+def dar_vuelo(cur, id_vuelo):
+    stmt= '''
+    SELECT * FROM VUELOS WHERE idvuelo=:id_vuelo'''
+    # keys= ['idvuelo', 'idaerolinea', 'idnumvuelo', 'aeropuertosalida', 'aeropuertollegada', 
+          # 'horasalida', 'horallegada', 'fecha', 'frecuencia', 'distancia', 'duracion', 'tipovuelo',
+          # 'idavion' ]
+    cur.execute(stmt, (id_vuelo,))
+    values= cur.fetchall()
+    return cur, values
 
 @returnobj #ret cursor y valor
 def dar_salidas_llegadas(cur, cuerpo):
@@ -175,3 +185,209 @@ def producido_fechas_personas(cur, cuerpo):
     cur.execute(stmt, cuerpo)
     values = cur.fetchall()
     return cur, values
+
+@returnobj #ret cursor y valor
+def vuelo_directo(cur, datos):
+    stmt = """ 
+    SELECT v.idVuelo as idvuelo --, ars.Ciudad AS origen, arl.ciudad AS destino
+    FROM ISIS2304B121620.Vuelos v, ISIS2304B121620.Aeropuertos ars, ISIS2304B121620.Aeropuertos arl,
+     ISIS2304B121620.Aerolineas aero
+     WHERE v.AeropuertoSalida = ars.iataCod AND v.aeropuertoLlegada = arl.iataCod AND
+      v.idAerolinea = aero.iataCod 
+      AND aero.iataCod = :idaerolinea
+      AND ars.ciudad = :ciudadsalida
+      AND arl.ciudad = :ciudaddestino
+    """
+    c= """commit"""
+    ser="""set transaction read only"""
+    # cur.execute(c)
+    # cur.execute(ser)
+    cur.execute(stmt, datos)
+    values = cur.fetchall()
+    return cur, values
+
+@returnobj #ret cursor y valor
+def una_escala(cur, datos):
+    stmt = """ 
+    WITH escalas AS (SELECT v.idVuelo, ars.Ciudad AS origen, arl.ciudad AS destino
+    FROM ISIS2304B121620.Vuelos v, ISIS2304B121620.Aeropuertos ars, ISIS2304B121620.Aeropuertos arl,
+     ISIS2304B121620.Aerolineas aero
+    WHERE v.AeropuertoSalida = ars.iataCod AND v.aeropuertoLlegada = arl.iataCod AND
+      v.idAerolinea = aero.iataCod AND aero.iataCod = :idaerolinea)
+
+    SELECT escaO.idVuelo as idvuelo1, escaD.idvuelo as idvuelo2 
+    FROM escalas escaO, escalas escaD
+    WHERE escaO.Origen = :ciudadsalida AND escaD.Destino = :ciudaddestino
+      AND escaO.destino = escaD.origen 
+    """
+    c= """commit"""
+    ser="""set transaction read only"""
+    # cur.execute(c)
+    # cur.execute(ser)
+    cur.execute(stmt, datos)
+    values = cur.fetchall()
+    return cur, values
+
+@returnobj #ret cursor y valor
+def mas_escalas(cur, datos):
+    stmt = """ 
+    WITH escalas AS (SELECT v.idVuelo, ars.Ciudad AS origen, arl.ciudad AS destino
+    FROM ISIS2304B121620.Vuelos v, ISIS2304B121620.Aeropuertos ars, ISIS2304B121620.Aeropuertos arl,
+     ISIS2304B121620.Aerolineas aero
+    WHERE v.AeropuertoSalida = ars.iataCod AND v.aeropuertoLlegada = arl.iataCod AND
+      v.idAerolinea = aero.iataCod AND aero.iataCod = :idaerolinea)
+
+    SELECT escaO.idvuelo as idvuelo1, e1.idvuelo as idVuelo2, escaD.idvuelo as idVuelo3
+    FROM escalas escaO, escalas escaD, escalas e1--, escalas e2
+    WHERE escaO.Origen = :ciudadsalida AND escaD.Destino = :ciudaddestino
+      AND escaO.destino = e1.origen 
+      AND e1.Destino = escaD.Origen
+    --AND e2.Destino = escaD.Origen
+    """
+    c= """commit"""
+    ser="""set transaction read only"""
+    # cur.execute(c)
+    # cur.execute(ser)
+    cur.execute(stmt, datos)
+    values = cur.fetchall()
+    return cur, values
+
+@returnobj #ret cursor y valor
+def liberar_cupos(cur, reserva):
+    stmt = """ 
+    WITH calculoReserva AS(SELECT r.numejec+r.numecon AS sillasReservadas, 
+       avp.sillaseconomicas + avp.SillasEjecutivas AS CAPACIDAD_TOTAL
+    FROM ISIS2304B121620.reservas r, ISIS2304B121620.Vuelos v, 
+     ISIS2304B121620.Aviones av, ISIS2304B121620.AvionesPasajeros avp
+    WHERE r.idvuelo = v.idVuelo AND idReserva = :idreserva AND v.idvuelo = :idvuelo
+      AND av.idAvion = v.idavion AND av.idAvion = avp.idAvion),
+      calculoTotal AS (SELECT SUM(r.NUMEJEC) + SUM(r.NUMECON) AS RESERVAS_ACTUALES 
+    FROM ISIS2304B121620.Reservas r, ISIS2304B121620.Vuelos v
+    WHERE v.idVuelo = 1573 AND r.idVuelo = v.idVuelo)
+      
+    SELECT cr.CAPACIDAD_TOTAL - ct.RESERVAS_ACTUALES as CUPOS_ACTUALES,
+       cr.CAPACIDAD_TOTAL - ct.RESERVAS_ACTUALES + cr.SillasReservadas AS NUEVO_CUPO
+    FROM calculoReserva cr, calculoTotal ct
+    """
+
+    c= """commit"""
+    ser="""set transaction read only"""
+    # cur.execute(c)
+    # cur.execute(ser)
+    cur.execute(stmt, reserva)
+    values = cur.fetchall()
+    print values
+    return cur, values
+
+@returnobj #ret cursor y valor
+def dar_viajes(cur, cuerpo):
+    c= """commit"""
+    read= """SET TRANSACTION READ ONLY"""
+    stmt = """ 
+    SELECT aSalida.Ciudad AS Origen, Allegada.Ciudad AS Destino, vr.idVuelo, 
+       viaj.Nombre AS nombreViajero, r.idViajero, a.Nombre AS NombreAerolinea,
+       a.iataCod AS codigoAerolinea, vr.fechaSalida, 
+       aSalida.iataCod AS codigoAeropuertoSalida, 
+       aSalida.nombre AS nombreAeropuertoSalida, 
+       vr.fechaLlegada, aLlegada.iataCod AS codigoAeropuertoLlegada, 
+       aLlegada.nombre AS nombreAeropuertoLlegada, r.numejec, r.numecon,
+       vr.fechaSalida - vr.fechaLlegada AS TiempoDeVuelo
+    FROM ISIS2304B121620.Reservas r, ISIS2304B121620.Vuelos v,
+     ISIS2304B121620.ViajesRealizados vr,
+     ISIS2304B121620.Aeropuertos aSalida, ISIS2304B121620.Aeropuertos aLlegada,
+     ISIS2304B121620.Aerolineas a, ISIS2304B121620.Viajeros viaj
+    WHERE r.idViajero = :idviajero AND r.idVuelo = v.idVuelo AND v.aeropuertoSalida = aSalida.iataCod
+      AND v.aeropuertoLlegada = aLlegada.iataCod AND a.IATACOD = v.idAerolinea
+      AND viaj.idViajero = r.idViajero AND vr.idVuelo = v.idVuelo
+    """
+    if 'fecha' in cuerpo:
+        stmt+= " AND v.fecha=:fecha"
+    if 'tipovuelo' in cuerpo:
+        stmt+= " AND v.tipovuelo=:tipovuelo"
+    if 'horasalida' in cuerpo:
+        stmt+= " AND v.horasalida>=:horasalida"
+    if 'horallegada' in cuerpo:
+        stmt+= " AND v.horallegada>=:horallegada"
+    # cur.execute(c)
+    cur.execute(read)
+    cur.execute(stmt, cuerpo)
+    values = cur.fetchall()
+    # cur.execute(c)
+    print values
+    return cur, values
+
+
+@returnobj #ret cursor y valor
+def dar_viajes_admin(cur, cuerpo):
+    c= """commit"""
+    read= """SET TRANSACTION READ ONLY"""
+    stmt = """ 
+    SELECT aSalida.Ciudad AS Origen, Allegada.Ciudad AS Destino, vr.idVuelo, 
+       viaj.Nombre AS nombreViajero, r.idViajero, a.Nombre AS NombreAerolinea,
+       a.iataCod AS codigoAerolinea, vr.fechaSalida, 
+       aSalida.iataCod AS codigoAeropuertoSalida, 
+       aSalida.nombre AS nombreAeropuertoSalida, 
+       vr.fechaLlegada, aLlegada.iataCod AS codigoAeropuertoLlegada, 
+       aLlegada.nombre AS nombreAeropuertoLlegada, r.numejec, r.numecon,
+       vr.fechaSalida - vr.fechaLlegada AS TiempoDeVuelo
+    FROM ISIS2304B121620.Reservas r, ISIS2304B121620.Vuelos v,
+     ISIS2304B121620.ViajesRealizados vr,
+     ISIS2304B121620.Aeropuertos aSalida, ISIS2304B121620.Aeropuertos aLlegada,
+     ISIS2304B121620.Aerolineas a, ISIS2304B121620.Viajeros viaj
+    WHERE r.idVuelo = v.idVuelo AND v.aeropuertoSalida = aSalida.iataCod
+      AND v.aeropuertoLlegada = aLlegada.iataCod AND a.IATACOD = v.idAerolinea
+      AND viaj.idViajero = r.idViajero AND vr.idVuelo = v.idVuelo
+    """
+    if 'fecha' in cuerpo:
+        stmt+= " AND v.fecha=:fecha"
+    if 'tipovuelo' in cuerpo:
+        stmt+= " AND v.tipovuelo=:tipovuelo"
+    if 'horasalida' in cuerpo:
+        stmt+= " AND v.horasalida>=:horasalida"
+    if 'horallegada' in cuerpo:
+        stmt+= " AND v.horallegada>=:horallegada"
+
+    # cur.execute(c)
+    cur.execute(read)
+    cur.execute(stmt, cuerpo)
+    values = cur.fetchall()
+    print values
+    return cur, values
+
+@returnobj #ret cursor y valor
+def dar_origen_destino(cur, cuerpo):
+    c= """commit"""
+    read= """SET TRANSACTION READ ONLY"""
+    stmt = """ 
+    SELECT ars.Ciudad as Oirgen, arl.Ciudad as Destino
+    FROM ISIS2304B121620.Vuelos v, ISIS2304B121620.Aeropuertos ars, 
+     ISIS2304B121620.Aeropuertos arl
+    WHERE v.idVuelo = :idvuelo AND ars.iataCod = v.AeropuertoSalida
+      AND arl.iataCod = v.aeropuertoLlegada
+    """
+
+    # cur.execute(c)
+    cur.execute(read)
+    cur.execute(stmt, cuerpo)
+    values = cur.fetchall()
+    print values
+    return cur, values
+
+def cancelar_vuelo(cur, reserva):
+    stmt= '''
+    DELETE FROM vuelos WHERE idvuelo= :2
+                '''
+    # keys= ['idvuelo', 'idaerolinea', 'idnumvuelo', 'aeropuertosalida', 'aeropuertollegada', 
+          # 'horasalida', 'horallegada', 'fecha', 'frecuencia', 'distancia', 'duracion', 'tipovuelo',
+          # 'idavion' ]
+    # print reserva.__dict__
+    c= """Savepoint antesitosodematarlvuelo"""
+    ser="""set transaction isolation level serializable"""
+    # cur.execute(c)
+    print '****'
+    print reserva
+    cur.execute(c)
+    cur.execute(ser)
+    cur.execute(stmt,(reserva,)) #reserva.__dict__)
+    # values= cur.fetchall()
+    return reserva

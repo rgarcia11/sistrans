@@ -36,10 +36,13 @@ class MainHandler(base_handler.BaseHandler):
                 temp["horallegada"] = datetime.datetime.strptime(temp['horallegada'], '%Y-%m-%d %H:%M:%S')
             response= yield tm.dar_salidas_llegadas(temp)
             self.set_status(200)
-            response = response.json()
+            response = json.dumps(response)
         else:
             response = tornado.escape.json_encode(ret)
             self.set_status(403)
+        self.set_header('Content-Type', 'text/javascript;charset=utf-8')
+        self.write(response)
+
         
 
         # if self.json_args is not None:

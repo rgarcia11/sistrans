@@ -139,9 +139,7 @@ def dar_count_vuelos_realizados():
 @tornado.gen.coroutine
 def dar_count_viajeros():
     conn = db.get_instance()
-    result = yield conn.run_transaction(viajeros.dar_count_viajeros
-
-        )
+    result = yield conn.run_transaction(viajeros.dar_count_viajeros)
     raise tornado.gen.Return(result)
 
 @tornado.gen.coroutine
@@ -216,6 +214,96 @@ def consultar_aerolinea_carga_aeropuerto(cod):
     result = yield conn.run_transaction(aerolineas.consultar_aerolinea_carga_aeropuerto, cod)
     raise tornado.gen.Return(result)
 
+@tornado.gen.coroutine
+def cancelar_reserva(cod):
+    conn = db.get_instance()
+    result = yield conn.run_transaction(reservas.cancelar_reserva, cod)
+    raise tornado.gen.Return(result)
+
+@tornado.gen.coroutine
+def dar_reserva(id_reserva):
+    conn = db.get_instance()
+    result = yield conn.run_transaction(reservas.dar_reserva, id_reserva)
+    raise tornado.gen.Return(result)
+
+@tornado.gen.coroutine
+def dar_vuelo(id_vuelo):
+    conn = db.get_instance()
+    result = yield conn.run_transaction(vuelos.dar_vuelo, id_vuelo)
+    raise tornado.gen.Return(result)
+
+@tornado.gen.coroutine
+def liberar_cupos(reserva):
+    conn = db.get_instance()
+    result = yield conn.run_transaction(vuelos.liberar_cupos, reserva)
+    raise tornado.gen.Return(result)
+
+@tornado.gen.coroutine
+def vuelo_directo(datos):
+    conn = db.get_instance()
+    result = yield conn.run_transaction(vuelos.vuelo_directo, datos)
+    raise tornado.gen.Return(result)
+
+
+@tornado.gen.coroutine
+def una_escala(datos):
+    conn = db.get_instance()
+    result = yield conn.run_transaction(vuelos.una_escala, datos)
+    raise tornado.gen.Return(result)
+
+@tornado.gen.coroutine
+def mas_escalas(datos):
+    conn = db.get_instance()
+    result = yield conn.run_transaction(vuelos.mas_escalas, datos)
+    raise tornado.gen.Return(result)
+
+@tornado.gen.coroutine
+def dar_viajes(temp):
+    conn = db.get_instance()
+    result = yield conn.run_transaction(vuelos.dar_viajes, temp)
+    raise tornado.gen.Return(result)
+
+@tornado.gen.coroutine
+def dar_viajes_admin(temp):
+    conn = db.get_instance()
+    result = yield conn.run_transaction(vuelos.dar_viajes_admin, temp)
+    raise tornado.gen.Return(result)
+
+@tornado.gen.coroutine
+def dar_aviones_admin(temp):
+    conn = db.get_instance()
+    result = yield conn.run_transaction(aviones.dar_aviones_admin, temp)
+    raise tornado.gen.Return(result)
+
+@tornado.gen.coroutine
+def dar_aviones(temp):
+    conn = db.get_instance()
+    result = yield conn.run_transaction(aviones.dar_aviones, temp)
+    raise tornado.gen.Return(result)
+
+@tornado.gen.coroutine
+def dar_origen_destino(temp):
+    conn = db.get_instance()
+    result = yield conn.run_transaction(vuelos.dar_origen_destino, temp)
+    raise tornado.gen.Return(result)
+
+@tornado.gen.coroutine
+def reservas_a_cancelar(temp):
+    conn = db.get_instance()
+    result = yield conn.run_transaction(reservas.reservas_a_cancelar, temp)
+    raise tornado.gen.Return(result)
+
+@tornado.gen.coroutine
+def reservas_num_vuelos(temp):
+    conn = db.get_instance()
+    result = yield conn.run_transaction(reservas.reservas_num_vuelos, temp)
+    raise tornado.gen.Return(result)
+
+@tornado.gen.coroutine
+def cancelar_vuelo(temp):
+    conn = db.get_instance()
+    result = yield conn.run_transaction(vuelos.cancelar_vuelo, temp)
+    raise tornado.gen.Return(result)
 
 @tornado.gen.coroutine
 def get_airport(iata_code):

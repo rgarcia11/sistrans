@@ -98,6 +98,94 @@ AGREGAR VIAJE REALIZADO:
 
 CONSULTAR ARRIBOS Y SALIDAS DE VIAJES EN UN AEROPUERTO RFC1
 import requests
+headers={'User-Email':'edgarin@gmail.com'}
 holi= {'cod_aeropuerto':'BOG', 'horallegada':'2017-02-15 10:15:00'}
-r= requests.get('http://localhost:8000/api/aeropuertos/salidas_llegadas',json=holi)
+r= requests.get('http://localhost:8000/api/aeropuertos/salidas_llegadas',json=holi, headers=headers)
 r.text
+
+%TERCERA ITERACIÓN 
+
+CREAR RESERVA MEJORADO (VUELO DIRECTO)
+{
+    "idreserva": 1,
+    "idaerolinea": "YJ",
+    "ciudadsalida": "Auckland",
+    "ciudaddestino": "Tianjin",
+    "idviajero":1,
+    "numejec": 2,
+    "numecon":0
+}
+(UNA ESCALA)
+{
+    "idreserva": 2,
+    "idaerolinea": "YJ",
+    "ciudadsalida": "Auckland",
+    "ciudaddestino": "Guayaquil",
+    "idviajero":1,
+    "numejec": 2,
+    "numecon":0
+}
+(DOS ESCALAS)
+{
+    "idreserva": 3,
+    "idaerolinea": "YJ",
+    "ciudadsalida": "Auckland",
+    "ciudaddestino": "Mumbai",
+    "idviajero":1,
+    "numejec": 2,
+    "numecon":0
+}
+(CANCELAR RESERVA(S))
+{
+    "idreserva": 1577
+}
+
+CANCELAR VIAJE
+{
+    "idvuelo": 23
+}
+
+AGREGAR MUCHOS
+{
+    "idreserva": 11233124551223841253,
+    "idaerolinea": "YJ",
+    "ciudadsalida": "Auckland",
+    "ciudaddestino": "Mumbai",
+    "idviajero":1,
+    "numejec": 2,
+    "numecon":0,
+    "idremitente": 3, 
+    "idenvio": 1500312300,
+    "volumen": 0,
+    "peso": 2,
+    "contenido": "Caja"
+}
+
+CONSULTAR VIAJES
+VIAJERO
+headers={'User-Email':'edgarin666@gmail.com'}
+holi= {'idviajero':11}
+r= requests.get('http://localhost:8000/api/consultarviajes',json=holi, headers=headers)
+r.text
+
+ADMIN
+headers={'User-Email':'edgarin@gmail.com'}
+holi={}
+r= requests.get('http://localhost:8000/api/consultarviajes/admin',json=holi, headers=headers)
+r.text
+
+CONSULTAR AVIONES
+ADMIN
+headers={'User-Email':'edgarin@gmail.com'}
+holi={}
+r= requests.get('http://localhost:8000/api/consultaraviones/admin',json=holi, headers=headers)
+r.text
+
+AEROLINEA
+headers={'User-Email':'gato123@gmail.com'}
+holi={'idaerolinea':'AA', 'idavion': 4}
+r= requests.get('http://localhost:8000/api/consultaraviones/aerolinea',json=holi, headers=headers)
+r.text
+
+
+

@@ -38,8 +38,13 @@ REST = [
 (r'/api/cproducido(/?([0-9]*)?)', rest.producido_carga_rest.MainHandler),
 (r'/api/fcproducido', rest.producido_carga_fechas_rest.MainHandler),
 (r'/api/fpproducido', rest.producido_pasajeros_fechas_rest.MainHandler),
-(r'/api/aeropuertos', rest.aeropuertos_rest.MainHandler)
-# (r'/api/airports(/?([A-Z]{3})?)', rest.airports_rest.MainHandler)
+(r'/api/aeropuertos', rest.aeropuertos_rest.MainHandler),
+(r'/api/consultarviajes', rest.consultar_viajes_rest.MainHandler),
+(r'/api/consultarviajes/admin', rest.consultar_viajes_admin_rest.MainHandler),
+(r'/api/consultaraviones/admin', rest.consultar_aviones_admin_rest.MainHandler),
+(r'/api/consultaraviones/aerolinea', rest.aviones_rest.MainHandler),
+(r'/api/vuelos/cancelar', rest.cancelar_vuelo_rest.MainHandler),
+(r'/api/reservas/cancelar', rest.cancelar_reserva_rest.MainHandler)
 ]
 
 # Define new web rendering route associations
