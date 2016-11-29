@@ -39,3 +39,13 @@ def dar_num_tipo(cur, nombre):
     values = cur.fetchall()
     print values
     return values[0][0]
+
+@returnobj
+def dar_usuarios(cur):
+    stmt= '''
+    SELECT * FROM usuarios 
+    '''
+    cur.execute(stmt)
+    values = cur.fetchall()
+    print values
+    return cur, values

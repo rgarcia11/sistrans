@@ -44,6 +44,10 @@ import consultar_viajes_rest
 import consultar_aviones_admin_rest
 import consultar_viajes_admin_rest
 import cancelar_vuelo_rest
+import consultar_trafico_aereo_vuelos_pasajeros_rest
+import consultar_trafico_aereo_vuelos_carga_rest
+import consultar_no_vuelos_rest
+import registrar_usuarios_rest
 
 __version__ = '1.0.0'
 

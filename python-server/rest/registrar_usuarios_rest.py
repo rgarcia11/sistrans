@@ -3,45 +3,38 @@
 import os
 import sys
 import json
-import datetime
 import tornado.web
 import tornado.escape
 import logic.tm as tm
 import base_handler
-import models.vuelo_realizado as vuelo_realizado
+# import logic.mq as mq
 
 class MainHandler(base_handler.BaseHandler):
     def initialize(self, db=None):
         self.db = db
-
+    
     def prepare(self):
-        if self.request.headers["Content-Type"].startswith("application/json"):
-           print "Got JSON"
-           self.json_args = json.loads(self.request.body)
-        else:
-           self.json_args = None
+        if "Content-Type" in self.request.headers: 
+            if self.request.headers["Content-Type"].startswith("application/json"):
+               print "Got JSON"
+               self.json_args = json.loads(self.request.body)
+            else:
+               self.json_args = None
 
     @tornado.gen.coroutine
     def get(self):
         #self.set_status(403)
-        airports = yield tm.two_phase_commit_example2(self.application.conn2, self.application.conn3)
-        # airports_2 = yield airports
-        print airports
-        response = json.dumps(airports)
+        airports = yield tm.dar_usuarios_remote(self.application.outq)
         self.set_header('Content-Type', 'text/javascript;charset=utf-8')
         self.write(tornado.escape.json_encode(airports))
-        self.set_status(403)
 
     @tornado.gen.coroutine
     def post(self):
         if self.json_args is not None:
-          ret, perm, email, _type = yield self.authenticate('aeropuerto')
+          ret, perm, email, _type = yield self.authenticate('viajero')
           if perm:
-            tot= yield tm.dar_count_vuelos_realizados()
-            self.json_args["idrealizado"]= int(tot[0]["total"])+1
-            print self.json_args
-            edgarin= vuelo_realizado.Vuelo_realizado.from_json(self.json_args)
-            response= yield tm.registrar_vuelo_realizado(edgarin)
+            edgarin= aeropuerto.Aeropuerto.from_json(self.json_args)
+            response= yield tm.registrar_aeropuerto(edgarin)
             self.set_status(201)
             response = response.json()
           else:

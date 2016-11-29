@@ -43,8 +43,12 @@ REST = [
 (r'/api/consultarviajes/admin', rest.consultar_viajes_admin_rest.MainHandler),
 (r'/api/consultaraviones/admin', rest.consultar_aviones_admin_rest.MainHandler),
 (r'/api/consultaraviones/aerolinea', rest.aviones_rest.MainHandler),
+(r'/api/consultartraficoaereo/vueloscarga', rest.consultar_trafico_aereo_vuelos_carga_rest.MainHandler),
+(r'/api/consultartraficoaereo/vuelospasajeros', rest.consultar_trafico_aereo_vuelos_pasajeros_rest.MainHandler),
+(r'/api/consultarnovuelos', rest.consultar_no_vuelos_rest.MainHandler),
 (r'/api/vuelos/cancelar', rest.cancelar_vuelo_rest.MainHandler),
-(r'/api/reservas/cancelar', rest.cancelar_reserva_rest.MainHandler)
+(r'/api/reservas/cancelar', rest.cancelar_reserva_rest.MainHandler),
+(r'/api/prueba', rest.registrar_usuarios_rest.MainHandler)
 ]
 
 # Define new web rendering route associations

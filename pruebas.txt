@@ -187,5 +187,43 @@ holi={'idaerolinea':'AA', 'idavion': 4}
 r= requests.get('http://localhost:8000/api/consultaraviones/aerolinea',json=holi, headers=headers)
 r.text
 
+CONSULTAR NO VIAJES RF8
+import requests
+headers={'User-Email':'edgarin@gmail.com'}
+holi= {'cod_aeropuerto':'AAA', 'aerolinea':'XI'}
+r= requests.get('http://localhost:8000/api/consultarnovuelos',json=holi, headers=headers)
+r.text
+
+CONSULTAR trafico aereo carga
+import requests
+headers={'User-Email':'edgarin@gmail.com'}
+holi= {'ciudad1':'Melbourne','ciudad2': 'Miami'}
+r= requests.get('http://localhost:8000/api/consultartraficoaereo/vueloscarga',json=holi, headers=headers)
+r.text
+
+CONSULTAR trafico aereo pasajeros
+import requests
+headers={'User-Email':'edgarin@gmail.com'}
+holi= {'ciudad1':'Melbourne','ciudad2': 'Miami'}
+r= requests.get('http://localhost:8000/api/consultartraficoaereo/vuelospasajeros',json=holi, headers=headers)
+r.text
+
+usuarios premium
+import requests
+headers={'User-Email':'edgarin@gmail.com'}
+holi= {}
+r= requests.get('http://localhost:8000/api/reservas',json=holi, headers=headers)
+r.text
+
+Rogelio
+import requests
+headers={'User-Email':'edgarin@gmail.com'}
+holi= {}
+r= requests.get('http://localhost:8000/api/vuelos/realizados',json=holi, headers=headers)
+r.text
+
+
+
+
 
 

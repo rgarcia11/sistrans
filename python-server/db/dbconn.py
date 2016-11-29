@@ -37,6 +37,8 @@ import toradbapi
 
 # Sigleton object for DB connection access
 db_pool = None
+db_pool_2 = None
+db_pool_3 = None
 
 class DatabaseConnection(object):
     '''
@@ -166,6 +168,36 @@ def initialize_db(*args, **kwargs):
     global db_pool
     db_pool = DatabaseConnection(*args, **kwargs)
 
+
+
+def initialize_db_2(*args, **kwargs):
+    '''
+    Initializes the single running instance of the DB connection pool.
+
+    Notes
+    -----
+    For more information about the initialization parameters, 
+    please refer to `dbconn`.DatabaseConnection.__init__
+    reference
+    '''
+    global db_pool_2
+    db_pool_2 = DatabaseConnection(*args, **kwargs)
+
+
+def initialize_db_3(*args, **kwargs):
+    '''
+    Initializes the single running instance of the DB connection pool.
+
+    Notes
+    -----
+    For more information about the initialization parameters, 
+    please refer to `dbconn`.DatabaseConnection.__init__
+    reference
+    '''
+    global db_pool_3
+    db_pool_3 = DatabaseConnection(*args, **kwargs)
+
+
 def get_instance():
     '''
     Returns the current running instance of the DB connection pool.
@@ -175,6 +207,27 @@ def get_instance():
     The current instance of DatabaseConnection present in the system 
     '''
     return db_pool
+
+
+def get_instance_2():
+    '''
+    Returns the current running instance of the DB connection pool.
+
+    Returns
+    -------
+    The current instance of DatabaseConnection present in the system 
+    '''
+    return db_pool_2
+
+def get_instance_3():
+    '''
+    Returns the current running instance of the DB connection pool.
+
+    Returns
+    -------
+    The current instance of DatabaseConnection present in the system 
+    '''
+    return db_pool_3
 
 def close():
     """

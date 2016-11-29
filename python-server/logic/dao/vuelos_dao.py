@@ -391,3 +391,73 @@ def cancelar_vuelo(cur, reserva):
     cur.execute(stmt,(reserva,)) #reserva.__dict__)
     # values= cur.fetchall()
     return reserva
+
+@returnobj #ret cursor y valor
+def dar_trafico_aereo_vuelos_carga(cur, cuerpo):
+    stmt = """ 
+    Select v.*, sum(env.peso) AS Peso_total
+    FROM ISIS2304B121620.vuelos v, ISIS2304B121620.aeropuertos aL, 
+    ISIS2304B121620.aeropuertos aerS, ISIS2304B121620.envios env
+    WHERE (aL.Ciudad = :ciudad1 OR aerS.Ciudad = :ciudad1)
+      AND (aL.Ciudad = :ciudad2 OR aerS.Ciudad = :ciudad2)
+      AND v.aeropuertoSalida = aerS.IATACOD AND v.aeropuertoLlegada = aL.iatacod
+      AND (env.idVuelo = v.idVuelo)
+    GROUP BY v.idVuelo, v.idAerolinea, v.idNumVuelo, v.aeropuertoSalida, 
+         v.aeropuertoLlegada, v.HoraSalida, v.HoraLlegada, v.Fecha, v.frecuencia,
+         v.distancia, v.duracion, v.tipoVuelo, v.idavion
+    """
+
+    print(stmt)
+    cur.execute(stmt, cuerpo)
+    values = cur.fetchall()
+    return cur, values
+
+@returnobj #ret cursor y valor
+def dar_trafico_aereo_vuelos_pasajeros(cur, cuerpo):
+    stmt = """ 
+    Select v.*, sum(rv.numejec)+sum(rv.numecon) AS TOTAL_PASAJEROS
+    FROM ISIS2304B121620.vuelos v, ISIS2304B121620.aeropuertos aL, 
+     ISIS2304B121620.aeropuertos aerS, ISIS2304B121620.reservas rv
+    WHERE (aL.Ciudad = :ciudad1 OR aerS.Ciudad = :ciudad1)
+      AND (aL.Ciudad = :ciudad2 OR aerS.Ciudad = :ciudad2)
+      AND v.aeropuertoSalida = aerS.IATACOD AND v.aeropuertoLlegada = aL.iatacod
+      AND (rv.idVuelo = v.idVuelo)
+    GROUP BY v.idVuelo, v.idAerolinea, v.idNumVuelo, v.aeropuertoSalida, 
+         v.aeropuertoLlegada, v.HoraSalida, v.HoraLlegada, v.Fecha, v.frecuencia,
+         v.distancia, v.duracion, v.tipoVuelo, v.idavion
+    """
+
+    print(stmt)
+    cur.execute(stmt, cuerpo)
+    values = cur.fetchall()
+    return cur, values
+
+@returnobj #ret cursor y valor
+def dar_no_vuelos(cur,cuerpo):
+    stmt = """ 
+    WITH negado AS(
+    SELECT v.*
+    FROM ISIS2304B121620.VUELOS v 
+    WHERE (v.aeropuertosalida=:cod_aeropuerto
+    OR v.aeropuertollegada=:cod_aeropuerto)
+    AND v.idaerolinea =:aerolinea
+    ), nonegado AS(
+    SELECT *
+    FROM ISIS2304B121620.Vuelos v
+    WHERE (v.aeropuertoSalida=:cod_aeropuerto OR v.aeropuertoLlegada =:cod_aeropuerto)
+    )
+    SELECT
+    nonegado.*
+    FROM
+    nonegado
+    LEFT OUTER JOIN
+    negado
+    ON
+    nonegado.idVuelo = negado.idVuelo
+    WHERE
+    negado.idVuelo IS NULL
+    """
+    cur.execute(stmt, cuerpo)
+    values = cur.fetchall()
+    print values
+    return cur, values

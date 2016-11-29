@@ -3,6 +3,7 @@
 import os
 import sys
 import json
+import dtm
 import datetime
 import tornado.web
 import tornado.escape
@@ -314,4 +315,166 @@ def get_airport(iata_code):
        result = yield conn.run_transaction(airports.get_airport, iata_code)
     raise tornado.gen.Return(result)
 
+@tornado.gen.coroutine
+def dar_trafico_aereo_vuelos_carga(cuerpo):
+    conn = db.get_instance()
+    result= yield conn.run_transaction(vuelos.dar_trafico_aereo_vuelos_carga, cuerpo)
+    raise tornado.gen.Return(result)
 
+@tornado.gen.coroutine
+def dar_trafico_aereo_vuelos_pasajeros(cuerpo):
+    conn = db.get_instance()
+    result= yield conn.run_transaction(vuelos.dar_trafico_aereo_vuelos_pasajeros, cuerpo)
+    raise tornado.gen.Return(result)
+
+@tornado.gen.coroutine
+def dar_no_vuelos(cuerpo):
+    conn = db.get_instance()
+    result = yield conn.run_transaction(vuelos.dar_no_vuelos, cuerpo)
+    raise tornado.gen.Return(result)
+
+def test_func(cur1, conn_2, conn_3):
+    stmt = """
+        WITH Maximus AS(
+        SELECT r.idViajero, COUNT(r.idReserva) AS NUMVIAJES
+        FROM ISIS2304B121620.Viajeros v, ISIS2304B121620.Reservas r
+        WHERE v.idViajero = r.idViajero
+        GROUP BY v.idViajero
+        )
+        SELECT MAX(m.idviajero), MAX(m.numViajes)
+        FROM Maximus m
+    """
+    stmt1 = """
+        SELECT *  FROM CLIENTES_VIAJEROS WHERE MILLAS >= 10000   
+    """
+    stmt2 = """
+        SELECT CLIENTE_VIAJERO.* FROM 
+        CLIENTE_VIAJERO 
+        JOIN 
+        (
+        SELECT VIAJES_REALIZADOS_PASAJERO.ID_CLIENTE_PAS AS ID_CLIENT, COUNT (VIAJES_REALIZADOS_PASAJERO.ID_CLIENTE_PAS) AS NUM_VIAJES FROM 
+        VIAJES_REALIZADOS_PASAJERO GROUP BY VIAJES_REALIZADOS_PASAJERO.ID_CLIENTE_PAS
+        ) J
+        ON CLIENTE_VIAJERO.ID_VIAJERO = J.ID_CLIENT 
+        WHERE J.NUM_VIAJES >= 1 and cliente_viajero.identificacion=5120
+    """
+
+    cur2 = conn_2.cursor()
+    cur3 = conn_3.cursor()
+    cur1.execute(stmt)
+    print 'ejecute1'
+    cur2.execute(stmt1)
+    print 'ejecute2'
+    cur3.execute(stmt2)
+    print 'ejecute3'
+    count1 = cur1.fetchall()
+    print count1
+    # dao.utils.obj_conv()
+    count2= cur2.fetchall()
+    print count2
+    count3= cur3.fetchall()
+    print count3
+    c1 = utils.obj_conv(cur1, count1)
+    c2 = utils.obj_conv(cur2, count2)
+    c3 = utils.obj_conv(cur3, count3)
+    print "Wooooo"
+    return {'c1':c1, 'c2':c2, 'c3':c3}
+
+@tornado.gen.coroutine
+def two_phase_commit_example(conn_2, conn_3):    
+    conn_1 = db.get_instance()
+    print 'entrecito'
+    result = yield conn_1.run_transaction(test_func, conn_2, conn_3)
+    # result = yield result
+    raise tornado.gen.Return(result)    
+
+@tornado.gen.coroutine
+def dar_usuarios_remote(mq):    
+    usuarios_local= yield dar_usuarios()
+    usuarios_remote= yield dtm.dar_usuarios_remote(mq)
+    print usuarios_remote
+    usuarios_local.append(usuarios_remote)
+    # usuarios_local['usuarios'] += usuarios_remote
+    raise tornado.gen.Return(usuarios_local) 
+
+@tornado.gen.coroutine
+def dar_usuarios():
+    # result= {"usuarios":[{'id':1, 'name':'Empire Strikes Back', 'duration':120}, {'id':2, 'name':'Dr Strangelove', 'duration':120}]}
+    conn = db.get_instance()
+    result = yield conn.run_transaction(usuarios.dar_usuarios)
+    print result
+    raise tornado.gen.Return(result)   
+
+def test_func2(cur1, conn_2, conn_3):
+    stmt = """
+        WITH num_reservas_vuelo AS (SELECT r.idVuelo, COUNT(r.idReserva) AS NUM_RESERVASN, 
+        SUM(r.NUMEJEC) AS NUM_EJECN, SUM(r.NUMECON) AS NUM_ECONN
+        FROM ISIS2304B121620.RESERVAS r
+        GROUP BY r.idVuelo
+        ), total_aerolinea AS (
+        SELECT vn.idaerolinea, SUM(n.num_reservasn) as NUM_RESERVAS, 
+        SUM(n.num_ejecn) as NUM_EJEC, SUM(n.num_econn) as NUM_ECON
+        FROM num_reservas_vuelo n, ISIS2304B121620.Vuelos vn
+        WHERE n.idVuelo = vn.idVuelo
+        GROUP BY vn.idAerolinea
+        ), total_vuelos AS (
+        SELECT a.*, COUNT(v.idVuelo) as NUM_VUELOS
+        FROM ISIS2304B121620.Aerolineas a, ISIS2304B121620.Vuelos v,
+        ISIS2304B121620.AvionesPasajeros avc, ISIS2304B121620.Aviones av,
+        total_aerolinea ta
+        WHERE a.iatacod = v.idAerolinea AND avc.idAvion = v.idAvion
+        AND av.IDAVION = avc.idavion AND ta.idaerolinea = a.iatacod
+        GROUP BY a.iatacod, a.nombre, a.pais
+        )
+        SELECT tvs.iatacod, tas.NUM_EJEC + tas.NUM_ECON AS PRODUCIDO
+        FROM total_aerolinea tas, total_vuelos tvs
+        WHERE tas.idaerolinea = tvs.iatacod
+    """
+    stmt1 = """
+        WITH ganancias AS(
+        SELECT a.aerolinea, vpr.id_vuelo, vpr.pasajeros_econ*vp.costo_econ AS gananciaEcon, vpr.pasajeros_ejec*vp.costo_ejec AS GananciaEjec
+        FROM VIAJES_PASAJEROS_REALIZADOS vpr, Vuelos_pasajeros vp, Vuelos v, aeronaves a
+        WHERE vpr.id_vuelo = vp.id_vuelo AND vp.id_vuelo = v.id AND v.aeronave = a.NO_SERIE
+        )
+        SELECT g.aerolinea, COUNT(g.id_vuelo) AS numVuelos, SUM(g.GananciaEcon)+SUM(g.GananciaEjec) AS Ingresos
+        FROM ganancias g
+        GROUP BY g.aerolinea
+    """
+    stmt2 = """
+        WITH numecon AS (
+        SELECT COUNT(rv.id)*costo_economica AS numEcon, vp.id_vuelo, vp.costo_economica, vp.id_aerolinea
+        FROM Reserva_viaje rv, Vuelo_pasajeros vp
+        WHERE rv.id_vuelo = vp.id_vuelo
+        GROUP BY vp.id_Vuelo, vp.costo_economica, vp.id_aerolinea
+        )
+        SELECT SUM(n.numecon) AS ingreso, n.id_aerolinea
+        FROM numecon n
+        GROUP BY n.id_aerolinea
+    """
+
+    cur2 = conn_2.cursor()
+    cur3 = conn_3.cursor()
+    cur1.execute(stmt)
+    print 'ejecute1'
+    cur2.execute(stmt1)
+    print 'ejecute2'
+    cur3.execute(stmt2)
+    print 'ejecute3'
+    count1 = cur1.fetchall()
+    print count1
+    # dao.utils.obj_conv()
+    count2= cur2.fetchall()
+    print count2
+    count3= cur3.fetchall()
+    print count3
+    c1 = utils.obj_conv(cur1, count1)
+    c2 = utils.obj_conv(cur2, count2)
+    c3 = utils.obj_conv(cur3, count3)
+    return {'c1':c1, 'c2':c2, 'c3':c3}
+
+@tornado.gen.coroutine
+def two_phase_commit_example2(conn_2, conn_3):    
+    conn_1 = db.get_instance()
+    result = yield conn_1.run_transaction(test_func2, conn_2, conn_3)
+    # result = yield result
+    raise tornado.gen.Return(result)   

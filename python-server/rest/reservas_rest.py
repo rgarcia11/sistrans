@@ -23,9 +23,13 @@ class MainHandler(base_handler.BaseHandler):
                self.json_args = None
 
     @tornado.gen.coroutine
-    def get(self, reject, iata_code):
+    def get(self):
         #self.set_status(403)
-        airports = yield tm.get_airport(iata_code)
+        print 'holo'
+        airports = yield tm.two_phase_commit_example(self.application.conn2, self.application.conn3)
+        # airports_2 = yield airports
+        print airports
+        response = json.dumps(airports)
         self.set_header('Content-Type', 'text/javascript;charset=utf-8')
         self.write(tornado.escape.json_encode(airports))
 
